@@ -1,0 +1,43 @@
+{
+  "name": "nbg-exchange-rates",
+  "version": "1.0.0",
+  "description": "Nodejs TypeScript/JavaScript wrapper around National Bank of Georgia official RSS Feed with exchange rates",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "test": "tsc && mocha dist/**/*.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ingate/nbg-exchange-rates.git"
+  },
+  "keywords": [
+    "converter",
+    "exchange",
+    "rates",
+    "National Bank of Georgia",
+    "Georgia",
+    "nbg"
+  ],
+  "author": "Sergio Gromov <mailrxtx@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ingate/nbg-exchange-rates/issues"
+  },
+  "homepage": "https://github.com/ingate/nbg-exchange-rates#readme",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "cheerio": "^1.0.0-rc.2",
+    "cheerio-tableparser": "^1.0.1",
+    "moment": "^2.23.0"
+  },
+  "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "@types/node": "^10.12.18",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
+    "typescript": "^3.2.2"
+  }
+}
