@@ -8,46 +8,52 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as mocha from 'mocha'
 const chai_1 = require("chai");
 const index_1 = require("./index");
 describe(">>> Testing convertation... >>>", function () {
-    // set maximum timeout for async calls to 1 minute
-    this.timeout(1 * 60 * 1000);
+    // set maximum timeout for async calls to 20 seconds
+    this.timeout(1 * 20 * 1000);
     const currencies = ["GEL", "AED", "AMD", "AUD", "AZN", "BGN", "BRL", "BYN", "CAD", "CHF", "CNY", "CZK", "DKK", "EGP", "EUR", "GBP", "HKD", "HUF", "ILS", "INR", "IRR", "ISK", "JPY", "KGS", "KRW", "KWD", "KZT", "MDL", "NOK", "NZD", "PLN", "QAR", "RON", "RSD", "RUB", "SEK", "SGD", "TJS", "TMT", "TRY", "UAH", "USD", "UZS", "ZAR"];
     let nbg;
-    before(function () {
+    it(`#Updating exchange rates:`, function () {
         return __awaiter(this, void 0, void 0, function* () {
-            nbg = new index_1.default(2);
-            if (nbg._updatingPromise) {
-                console.log('Updating exchange rates...');
-                yield nbg._updatingPromise;
+            nbg = new index_1.default(3, false);
+            if (nbg.updating) {
+                yield nbg.updating;
             }
-        });
-    });
-    it(`#Downloads all rates:`, function () {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log(yield nbg.ratesAsync);
+            console.log(nbg.cache);
         });
     });
     currencies.forEach((currency) => {
         // show exchange rates for GEL -> X
-        it(`#Converts via "convertAsync()" from GEL to ${currency} and vice versa`, function () {
+        it(`#Shows exchange rate via async "rate()" from ${currency} to GEL`, function () {
             return __awaiter(this, void 0, void 0, function* () {
-                let amount = 1;
-                let gel = yield nbg.convertAsync(amount, currency, "GEL");
+                let gel = yield nbg.rate(currency);
+                console.log(`1 ${currency} = ${gel.toFixed(6)} GEL`);
                 chai_1.expect(gel).to.be.a('number');
-                let xxx = yield nbg.convertAsync(amount, "GEL", currency);
+            });
+        });
+        it(`#Shows exchange rate via "rateSync()" from ${currency} to GEL`, function () {
+            let gel = nbg.rateSync(currency);
+            console.log(`1 ${currency} = ${gel.toFixed(6)} GEL`);
+            chai_1.expect(gel).to.be.a('number');
+        });
+        it(`#Converts via async "convert()" from GEL to ${currency} and vice versa`, function () {
+            return __awaiter(this, void 0, void 0, function* () {
+                let amount = 100;
+                let gel = yield nbg.convert(currency, "GEL", amount);
+                chai_1.expect(gel).to.be.a('number');
+                let xxx = yield nbg.convert("GEL", currency, amount);
                 chai_1.expect(xxx).to.be.a('number');
                 console.log(`${amount} ${currency} = ${gel.toFixed(6)} GEL`);
                 console.log(`${amount} GEL = ${xxx.toFixed(6)} ${currency}`);
             });
         });
-        it(`#Converts via "convert()" from GEL to ${currency} and vice versa`, function () {
-            let amount = 1;
-            let gel = nbg.convert(amount, currency, "GEL");
+        it(`#Converts via "convertSync()" from GEL to ${currency} and vice versa`, function () {
+            let amount = 100;
+            let gel = nbg.convertSync(currency, "GEL", amount);
             chai_1.expect(gel).to.be.a('number');
-            let xxx = nbg.convert(amount, "GEL", currency);
+            let xxx = nbg.convertSync("GEL", currency, amount);
             chai_1.expect(xxx).to.be.a('number');
             console.log(`${amount} ${currency} = ${gel.toFixed(6)} GEL`);
             console.log(`${amount} GEL = ${xxx.toFixed(6)} ${currency}`);

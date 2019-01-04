@@ -9,18 +9,14 @@ export interface CurrencyRateData {
 export default class NbgRates {
     cache: object;
     updated: Date;
+    updating: Promise<any>;
     _lifetime: number;
-    _updating: boolean;
-    _updatingPromise: Promise<any>;
-    _updateIntervalId: number;
+    _updatingFlag: boolean;
     constructor(lifetime?: number, liveUpdate?: boolean);
-    readonly rates: object;
-    readonly ratesAsync: Promise<object>;
-    getAllRatesAsync(): Promise<object>;
-    convert(amount: number, currencyFrom: Currency, currencyTo: Currency): number;
-    convertAsync(amount: number, currencyFrom: Currency, currencyTo: Currency): Promise<number>;
-    rate(currency: ForeignCurrency): number;
-    rateAsync(currency: ForeignCurrency): Promise<number>;
+    convertSync(currencyFrom: Currency, currencyTo: Currency, amount?: number): number;
+    convert(currencyFrom: Currency, currencyTo: Currency, amount?: number): Promise<number>;
+    rateSync(currency: Currency): number;
+    rate(currency: Currency): Promise<number>;
     _check(): Promise<void>;
     _update(): Promise<void>;
 }

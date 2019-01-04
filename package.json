@@ -1,12 +1,13 @@
 {
   "name": "nbg-exchange-rates",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Nodejs TypeScript/JavaScript wrapper around National Bank of Georgia official RSS Feed with exchange rates",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "tsc",
-    "test": "tsc && mocha dist/**/*.spec.js"
+    "test": "tsc && mocha dist/**/*.spec.js",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha **/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -37,6 +38,8 @@
     "@types/mocha": "^5.2.5",
     "@types/node": "^10.12.18",
     "chai": "^4.2.0",
+    "coveralls": "^3.0.2",
+    "istanbul": "^0.4.5",
     "mocha": "^5.2.0",
     "typescript": "^3.2.2"
   }
