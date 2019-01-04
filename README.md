@@ -53,7 +53,7 @@ let liveUpdate = true
 // Set cache to be valid for 10 minutes (600 seconds)
 // When liveUpdate is set to true
 // this also sets the period for automatical backround update
-let lifeTime = 6
+let lifeTime = 600
 
 let nbg: NbgRates = new NbgRates(lifeTime, liveUpdate)
 
