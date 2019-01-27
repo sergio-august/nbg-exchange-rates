@@ -53,77 +53,75 @@ export type ForeignCurrency =
 
 export type Currency = ForeignCurrency | "GEL"
 
-export interface CurrencyRateData {
+export interface ICurrencyRateData {
     ratePerAmount: number // GEL per X foreign currency
     amount: number // X foreign currency
     rate: number // GEL per 1 foreign currency
     spell: string
 }
 
-export type IRatesCache = {
-    [key in ForeignCurrency]?: CurrencyRateData | undefined
-}
+export type IRatesCache = { [key in ForeignCurrency]?: ICurrencyRateData | undefined }
 
 export default class NbgRates {
-    cache: IRatesCache | undefined = undefined
-    dateUpdated: Date | undefined = undefined
-    updatingPromise: Promise<any> | undefined = undefined
-    verbose: boolean
-    _lifetime: number
-    _updatingFlag: boolean = false
+    public cache: IRatesCache | undefined = undefined
+    public dateUpdated: Date | undefined = undefined
+    public updatingPromise: Promise<any> | undefined = undefined
+    public verbose: boolean
+    public updatingFlag: boolean = false
+    private lifetime: number
 
     constructor(lifetime?: number, liveUpdate: boolean = false, verbose: boolean = false) {
         this.verbose = verbose
-        this._lifetime = lifetime || 2 * 60 * 60 // 7200 seconds = 2 hours
-        this._update()
+        this.lifetime = lifetime || 2 * 60 * 60 // 7200 seconds = 2 hours
+        this.update()
         if (liveUpdate) {
             setInterval(() => {
-                this._update()
-            }, this._lifetime * 1000)
+                this.update()
+            }, this.lifetime * 1000)
         }
     }
 
-    convertSync(currencyFrom: Currency, currencyTo: Currency, amount: number = 1): number {
+    public convertSync = (currencyFrom: Currency, currencyTo: Currency, amount: number = 1): number => {
         if (currencyFrom === currencyTo) {
             // no convertation
             return amount
         } else if (currencyTo === "GEL") {
             // For example 100 USD = 266 GEL
-            let rate = this.rateSync(currencyFrom as ForeignCurrency)
+            const rate = this.rateSync(currencyFrom as ForeignCurrency)
             return amount * rate
         } else if (currencyFrom === "GEL") {
             // For example 100 GEL = 37.57 USD
-            let rate = this.rateSync(currencyTo as ForeignCurrency)
+            const rate = this.rateSync(currencyTo as ForeignCurrency)
             return amount / rate
         } else {
             // For example 100 UAH = 3.65 USD
-            let rateFrom = this.rateSync(currencyFrom as ForeignCurrency)
-            let rateTo = this.rateSync(currencyTo as ForeignCurrency)
+            const rateFrom = this.rateSync(currencyFrom as ForeignCurrency)
+            const rateTo = this.rateSync(currencyTo as ForeignCurrency)
             return (amount * rateFrom) / rateTo
         }
     }
 
-    async convert(currencyFrom: Currency, currencyTo: Currency, amount: number = 1): Promise<number> {
+    public convert = async (currencyFrom: Currency, currencyTo: Currency, amount: number = 1): Promise<number> => {
         if (currencyFrom === currencyTo) {
             // no convertation
             return amount
         } else if (currencyTo === "GEL") {
             // For example 100 USD = 266 GEL
-            let rate = await this.rate(currencyFrom as ForeignCurrency)
+            const rate = await this.rate(currencyFrom as ForeignCurrency)
             return amount * rate
         } else if (currencyFrom === "GEL") {
             // For example 100 GEL = 37.57 USD
-            let rate = await this.rate(currencyTo as ForeignCurrency)
+            const rate = await this.rate(currencyTo as ForeignCurrency)
             return amount / rate
         } else {
             // For example 100 UAH = 3.65 USD
-            let rateFrom = await this.rate(currencyFrom as ForeignCurrency)
-            let rateTo = await this.rate(currencyTo as ForeignCurrency)
+            const rateFrom = await this.rate(currencyFrom as ForeignCurrency)
+            const rateTo = await this.rate(currencyTo as ForeignCurrency)
             return (amount * rateFrom) / rateTo
         }
     }
 
-    rateSync(currency: Currency): number {
+    public rateSync = (currency: Currency): number => {
         if (currency === "GEL") {
             return 1
         }
@@ -133,38 +131,39 @@ export default class NbgRates {
         if (!this.cache[currency]) {
             throw new Error(`NBG Rates ERROR: no ${currency} in cache`)
         }
-        return this.cache[currency as ForeignCurrency]!["rate"]
+        return this.cache[currency as ForeignCurrency]!.rate
     }
 
-    async rate(currency: Currency): Promise<number> {
+    public rate = async (currency: Currency): Promise<number> => {
         if (currency === "GEL") {
             return 1
         }
-        await this._check()
+        await this.check()
         if (!this.cache) {
             throw new Error(`NBG Rates ERROR: cache is empty`)
         }
         if (!this.cache[currency]) {
             throw new Error(`NBG Rates ERROR: no ${currency} in cache`)
         }
-        return this.cache[currency]!["rate"]
+        return this.cache[currency]!.rate
     }
 
-    private async _check(): Promise<void> {
+    private check = async (): Promise<void> => {
         if (this.updatingPromise !== null) {
             await this.updatingPromise
         }
 
-        if (moment().diff(this.dateUpdated, "seconds") > this._lifetime) {
-            await this._update()
+        if (moment().diff(this.dateUpdated, "seconds") > this.lifetime) {
+            await this.update()
         }
     }
 
-    private async _update(): Promise<void> {
+    private update = async (): Promise<void> => {
         if (this.verbose) {
-            console.info("[nbg-exchange-rates]: updating exchange rates...") // VERBOSE
+            console.info("[nbg-exchange-rates]: updating exchange rates...")
         }
-        this._updatingFlag = true
+
+        this.updatingFlag = true
 
         try {
             this.updatingPromise = axios.get(rssUrl)
@@ -176,7 +175,7 @@ export default class NbgRates {
             const parsed = doc("table").parsetable(false, false, true)
             const data: IRatesCache = {}
             parsed[0].forEach((item: ForeignCurrency, i: number) => {
-                const amount = parseInt(parsed[1][i])
+                const amount = parseInt(parsed[1][i], 10)
                 data[item] = {
                     ratePerAmount: parsed[2][i], // GEL per X foreign currency
                     amount, // X foreign currency
@@ -195,7 +194,7 @@ export default class NbgRates {
                 console.error(error) // will fallback to cache
             }
         } finally {
-            this._updatingFlag = false
+            this.updatingFlag = false
         }
     }
 }

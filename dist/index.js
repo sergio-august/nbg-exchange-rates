@@ -18,106 +18,93 @@ const cheerio_tableparser_1 = __importDefault(require("cheerio-tableparser"));
 const moment_1 = __importDefault(require("moment"));
 const rssUrl = "http://www.nbg.ge/rss.php";
 class NbgRates {
-    constructor(lifetime, liveUpdate = false) {
+    constructor(lifetime, liveUpdate = false, verbose = false) {
         this.cache = undefined;
         this.dateUpdated = undefined;
         this.updatingPromise = undefined;
-        this._updatingFlag = false;
-        this._lifetime = lifetime || 2 * 60 * 60; // 7200 seconds = 2 hours
-        this._update();
-        if (liveUpdate) {
-            setInterval(() => {
-                this._update();
-            }, this._lifetime * 1000);
-        }
-    }
-    convertSync(currencyFrom, currencyTo, amount = 1) {
-        if (currencyFrom === currencyTo) {
-            // no convertation
-            return amount;
-        }
-        else if (currencyTo === "GEL") {
-            // For example 100 USD = 266 GEL
-            let rate = this.rateSync(currencyFrom);
-            return amount * rate;
-        }
-        else if (currencyFrom === "GEL") {
-            // For example 100 GEL = 37.57 USD
-            let rate = this.rateSync(currencyTo);
-            return amount / rate;
-        }
-        else {
-            // For example 100 UAH = 3.65 USD
-            let rateFrom = this.rateSync(currencyFrom);
-            let rateTo = this.rateSync(currencyTo);
-            return (amount * rateFrom) / rateTo;
-        }
-    }
-    convert(currencyFrom, currencyTo, amount = 1) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.updatingFlag = false;
+        this.convertSync = (currencyFrom, currencyTo, amount = 1) => {
             if (currencyFrom === currencyTo) {
                 // no convertation
                 return amount;
             }
             else if (currencyTo === "GEL") {
                 // For example 100 USD = 266 GEL
-                let rate = yield this.rate(currencyFrom);
+                const rate = this.rateSync(currencyFrom);
                 return amount * rate;
             }
             else if (currencyFrom === "GEL") {
                 // For example 100 GEL = 37.57 USD
-                let rate = yield this.rate(currencyTo);
+                const rate = this.rateSync(currencyTo);
                 return amount / rate;
             }
             else {
                 // For example 100 UAH = 3.65 USD
-                let rateFrom = yield this.rate(currencyFrom);
-                let rateTo = yield this.rate(currencyTo);
+                const rateFrom = this.rateSync(currencyFrom);
+                const rateTo = this.rateSync(currencyTo);
+                return (amount * rateFrom) / rateTo;
+            }
+        };
+        this.convert = (currencyFrom, currencyTo, amount = 1) => __awaiter(this, void 0, void 0, function* () {
+            if (currencyFrom === currencyTo) {
+                // no convertation
+                return amount;
+            }
+            else if (currencyTo === "GEL") {
+                // For example 100 USD = 266 GEL
+                const rate = yield this.rate(currencyFrom);
+                return amount * rate;
+            }
+            else if (currencyFrom === "GEL") {
+                // For example 100 GEL = 37.57 USD
+                const rate = yield this.rate(currencyTo);
+                return amount / rate;
+            }
+            else {
+                // For example 100 UAH = 3.65 USD
+                const rateFrom = yield this.rate(currencyFrom);
+                const rateTo = yield this.rate(currencyTo);
                 return (amount * rateFrom) / rateTo;
             }
         });
-    }
-    rateSync(currency) {
-        if (currency === "GEL") {
-            return 1;
-        }
-        if (!this.cache) {
-            throw new Error(`NBG Rates ERROR: cache is empty`);
-        }
-        if (!this.cache[currency]) {
-            throw new Error(`NBG Rates ERROR: no ${currency} in cache`);
-        }
-        return this.cache[currency]["rate"];
-    }
-    rate(currency) {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.rateSync = (currency) => {
             if (currency === "GEL") {
                 return 1;
             }
-            yield this._check();
             if (!this.cache) {
                 throw new Error(`NBG Rates ERROR: cache is empty`);
             }
             if (!this.cache[currency]) {
                 throw new Error(`NBG Rates ERROR: no ${currency} in cache`);
             }
-            return this.cache[currency]["rate"];
+            return this.cache[currency].rate;
+        };
+        this.rate = (currency) => __awaiter(this, void 0, void 0, function* () {
+            if (currency === "GEL") {
+                return 1;
+            }
+            yield this.check();
+            if (!this.cache) {
+                throw new Error(`NBG Rates ERROR: cache is empty`);
+            }
+            if (!this.cache[currency]) {
+                throw new Error(`NBG Rates ERROR: no ${currency} in cache`);
+            }
+            return this.cache[currency].rate;
         });
-    }
-    _check() {
-        return __awaiter(this, void 0, void 0, function* () {
+        this.check = () => __awaiter(this, void 0, void 0, function* () {
             if (this.updatingPromise !== null) {
                 yield this.updatingPromise;
             }
-            if (moment_1.default().diff(this.dateUpdated, "seconds") > this._lifetime) {
-                yield this._update();
+            if (moment_1.default().diff(this.dateUpdated, "seconds") > this.lifetime) {
+                yield this.update();
             }
         });
-    }
-    _update() {
-        return __awaiter(this, void 0, void 0, function* () {
-            console.log("DEBUG: updating exchange rates..."); // DEBUG
-            this._updatingFlag = true;
+        this.update = () => __awaiter(this, void 0, void 0, function* () {
+            if (this.verbose) {
+                console.info("[nbg-exchange-rates]: updating exchange rates...");
+            }
+            this.updatingFlag = true;
             try {
                 this.updatingPromise = axios_1.default.get(rssUrl);
                 const response = yield this.updatingPromise;
@@ -128,7 +115,7 @@ class NbgRates {
                 const parsed = doc("table").parsetable(false, false, true);
                 const data = {};
                 parsed[0].forEach((item, i) => {
-                    const amount = parseInt(parsed[1][i]);
+                    const amount = parseInt(parsed[1][i], 10);
                     data[item] = {
                         ratePerAmount: parsed[2][i],
                         amount,
@@ -145,13 +132,22 @@ class NbgRates {
                     throw error;
                 }
                 else {
+                    console.error("FALLBACK TO CACHE");
                     console.error(error); // will fallback to cache
                 }
             }
             finally {
-                this._updatingFlag = false;
+                this.updatingFlag = false;
             }
         });
+        this.verbose = verbose;
+        this.lifetime = lifetime || 2 * 60 * 60; // 7200 seconds = 2 hours
+        this.update();
+        if (liveUpdate) {
+            setInterval(() => {
+                this.update();
+            }, this.lifetime * 1000);
+        }
     }
 }
 exports.default = NbgRates;
