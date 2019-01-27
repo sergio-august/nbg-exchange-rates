@@ -68,10 +68,12 @@ export default class NbgRates {
     cache: IRatesCache | undefined = undefined
     dateUpdated: Date | undefined = undefined
     updatingPromise: Promise<any> | undefined = undefined
+    verbose: boolean
     _lifetime: number
     _updatingFlag: boolean = false
 
-    constructor(lifetime?: number, liveUpdate: boolean = false) {
+    constructor(lifetime?: number, liveUpdate: boolean = false, verbose: boolean = false) {
+        this.verbose = verbose
         this._lifetime = lifetime || 2 * 60 * 60 // 7200 seconds = 2 hours
         this._update()
         if (liveUpdate) {
@@ -159,7 +161,9 @@ export default class NbgRates {
     }
 
     private async _update(): Promise<void> {
-        console.log("DEBUG: updating exchange rates...") // DEBUG
+        if (this.verbose) {
+            console.info("[nbg-exchange-rates]: updating exchange rates...") // VERBOSE
+        }
         this._updatingFlag = true
 
         try {
@@ -187,6 +191,7 @@ export default class NbgRates {
                 // throw error if no failback data (in cache)
                 throw error
             } else {
+                console.error("FALLBACK TO CACHE")
                 console.error(error) // will fallback to cache
             }
         } finally {
