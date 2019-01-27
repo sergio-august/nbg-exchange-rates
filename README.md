@@ -1,7 +1,7 @@
 # nbg-exchange-rates
 
-[![Build Status](https://travis-ci.org/ingate/nbg-exchange-rates.svg?branch=master)](https://travis-ci.org/ingate/nbg-exchange-rates)
-[![Coverage Status](https://coveralls.io/repos/github/ingate/nbg-exchange-rates/badge.svg?branch=master)](https://coveralls.io/github/ingate/nbg-exchange-rates?branch=master)
+[![Build Status](https://travis-ci.org/sergio-code/nbg-exchange-rates.svg?branch=master)](https://travis-ci.org/sergio-code/nbg-exchange-rates)
+[![Coverage Status](https://coveralls.io/repos/github/sergio-code/nbg-exchange-rates/badge.svg?branch=master)](https://coveralls.io/github/sergio-code/nbg-exchange-rates?branch=master)
 
 Nodejs TypeScript/JavaScript wrapper around official National Bank of Georgia [RSS Feed](http://www.nbg.ge/rss.php) with exchange [rates](https://www.nbg.gov.ge/index.php?m=582&lng=eng)
 
@@ -18,8 +18,8 @@ Nodejs TypeScript/JavaScript wrapper around official National Bank of Georgia [R
 * Rates will be updated only when methods is called (if cache is expired):
 ```ts
 
-import NbgRates from './src/index'
-import { Currency } from './src/index' // Currency type
+import NbgRates from 'nbg-exchange-rates'
+import { Currency } from 'nbg-exchange-rates' // Currency type
 
 // Don't automatically updaty in background
 // Update only when some of methods is called
@@ -44,8 +44,8 @@ let nbg: NbgRates = new NbgRates(lifeTime, liveUpdate)
 * Rates will be updated in background periodically:
 ```ts
 
-import NbgRates from './src/index'
-import { Currency } from './src/index'
+import NbgRates from 'nbg-exchange-rates'
+import { Currency } from 'nbg-exchange-rates'
 
 // Don't automatically updaty in background
 // Update only when some of methods is called
@@ -59,8 +59,7 @@ let nbg: NbgRates = new NbgRates(lifeTime, liveUpdate)
 
 // main code
 ;(async function () {
-    await nbg.updating // TO BE SURE THAT DATA IS READY
-    await nbg.updating
+    await nbg.updatingPromise // TO BE SURE THAT DATA IS READY
     let currencyFrom: Currency = "USD"
     let currencyTo: Currency = "GEL"
     let amount = 100
