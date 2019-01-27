@@ -1,7 +1,7 @@
 # nbg-exchange-rates
 
-[![Build Status](https://travis-ci.org/ingate/nbg-exchange-rates.svg?branch=master)](https://travis-ci.org/ingate/nbg-exchange-rates)
-[![Coverage Status](https://coveralls.io/repos/github/ingate/nbg-exchange-rates/badge.svg?branch=master)](https://coveralls.io/github/ingate/nbg-exchange-rates?branch=master)
+[![Build Status](https://travis-ci.org/sergio-code/nbg-exchange-rates.svg?branch=master)](https://travis-ci.org/sergio-code/nbg-exchange-rates)
+[![Coverage Status](https://coveralls.io/repos/github/sergio-code/nbg-exchange-rates/badge.svg?branch=master)](https://coveralls.io/github/sergio-code/nbg-exchange-rates?branch=master)
 
 Nodejs TypeScript/JavaScript wrapper around official National Bank of Georgia [RSS Feed](http://www.nbg.ge/rss.php) with exchange [rates](https://www.nbg.gov.ge/index.php?m=582&lng=eng)
 
