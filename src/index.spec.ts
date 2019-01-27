@@ -1,25 +1,23 @@
 import { expect } from 'chai'
-import NbgRates from './index'
-import { Currency } from './index'
+import NbgRates, { Currency } from './index'
 
 describe(">>> Testing convertation... >>>", function () {
 
     // set maximum timeout for async calls to 20 seconds
     this.timeout(1 * 20 * 1000)
 
-    const currencies = ["GEL", "AED", "AMD", "AUD", "AZN", "BGN", "BRL", "BYN", "CAD", "CHF", "CNY", "CZK", "DKK", "EGP", "EUR", "GBP", "HKD", "HUF", "ILS", "INR", "IRR", "ISK", "JPY", "KGS", "KRW", "KWD", "KZT", "MDL", "NOK", "NZD", "PLN", "QAR", "RON", "RSD", "RUB", "SEK", "SGD", "TJS", "TMT", "TRY", "UAH", "USD", "UZS", "ZAR"]
-
+    const currencies: Currency[] = ["GEL", "AED", "AMD", "AUD", "AZN", "BGN", "BRL", "BYN", "CAD", "CHF", "CNY", "CZK", "DKK", "EGP", "EUR", "GBP", "HKD", "HUF", "ILS", "INR", "IRR", "ISK", "JPY", "KGS", "KRW", "KWD", "KZT", "MDL", "NOK", "NZD", "PLN", "QAR", "RON", "RSD", "RUB", "SEK", "SGD", "TJS", "TMT", "TRY", "UAH", "USD", "UZS", "ZAR"]
     let nbg: NbgRates
 
     it(`#Updating exchange rates:`, async function() {
         nbg = new NbgRates(3, false)
-        if (nbg.updating) {
-            await nbg.updating
+        if (nbg.updatingPromise) {
+            await nbg.updatingPromise
         }
         console.log(nbg.cache)
     })
 
-    currencies.forEach((currency: Currency) => {
+    currencies.forEach(currency => {
         // show exchange rates for GEL -> X
 
         it(`#Shows exchange rate via async "rate()" from ${currency} to GEL`, async function() {

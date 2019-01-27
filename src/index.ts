@@ -1,56 +1,57 @@
-import axios from 'axios'
-import * as cheerio from 'cheerio'
-import * as tableparser from 'cheerio-tableparser'
-import * as moment from 'moment'
+import axios from "axios"
+import cheerio from "cheerio"
+// @ts-ignore
+import tableparser from "cheerio-tableparser"
+import moment from "moment"
 
-const rssUrl = 'http://www.nbg.ge/rss.php'
+const rssUrl = "http://www.nbg.ge/rss.php"
 
 export type ForeignCurrency =
-    | 'AED'
-    | 'AMD'
-    | 'AUD'
-    | 'AZN'
-    | 'BGN'
-    | 'BRL'
-    | 'BYN'
-    | 'CAD'
-    | 'CHF'
-    | 'CNY'
-    | 'CZK'
-    | 'DKK'
-    | 'EGP'
-    | 'EUR'
-    | 'GBP'
-    | 'HKD'
-    | 'HUF'
-    | 'ILS'
-    | 'INR'
-    | 'IRR'
-    | 'ISK'
-    | 'JPY'
-    | 'KGS'
-    | 'KRW'
-    | 'KWD'
-    | 'KZT'
-    | 'MDL'
-    | 'NOK'
-    | 'NZD'
-    | 'PLN'
-    | 'QAR'
-    | 'RON'
-    | 'RSD'
-    | 'RUB'
-    | 'SEK'
-    | 'SGD'
-    | 'TJS'
-    | 'TMT'
-    | 'TRY'
-    | 'UAH'
-    | 'USD'
-    | 'UZS'
-    | 'ZAR'
+    | "AED"
+    | "AMD"
+    | "AUD"
+    | "AZN"
+    | "BGN"
+    | "BRL"
+    | "BYN"
+    | "CAD"
+    | "CHF"
+    | "CNY"
+    | "CZK"
+    | "DKK"
+    | "EGP"
+    | "EUR"
+    | "GBP"
+    | "HKD"
+    | "HUF"
+    | "ILS"
+    | "INR"
+    | "IRR"
+    | "ISK"
+    | "JPY"
+    | "KGS"
+    | "KRW"
+    | "KWD"
+    | "KZT"
+    | "MDL"
+    | "NOK"
+    | "NZD"
+    | "PLN"
+    | "QAR"
+    | "RON"
+    | "RSD"
+    | "RUB"
+    | "SEK"
+    | "SGD"
+    | "TJS"
+    | "TMT"
+    | "TRY"
+    | "UAH"
+    | "USD"
+    | "UZS"
+    | "ZAR"
 
-export type Currency = ForeignCurrency | 'GEL'
+export type Currency = ForeignCurrency | "GEL"
 
 export interface CurrencyRateData {
     ratePerAmount: number // GEL per X foreign currency
@@ -59,10 +60,14 @@ export interface CurrencyRateData {
     spell: string
 }
 
+export type IRatesCache = {
+    [key in ForeignCurrency]?: CurrencyRateData | undefined
+}
+
 export default class NbgRates {
-    cache: object = null
-    updated: Date
-    updating: Promise<any> = null
+    cache: IRatesCache | undefined = undefined
+    dateUpdated: Date | undefined = undefined
+    updatingPromise: Promise<any> | undefined = undefined
     _lifetime: number
     _updatingFlag: boolean = false
 
@@ -80,11 +85,11 @@ export default class NbgRates {
         if (currencyFrom === currencyTo) {
             // no convertation
             return amount
-        } else if (currencyTo === 'GEL') {
+        } else if (currencyTo === "GEL") {
             // For example 100 USD = 266 GEL
             let rate = this.rateSync(currencyFrom as ForeignCurrency)
             return amount * rate
-        } else if (currencyFrom === 'GEL') {
+        } else if (currencyFrom === "GEL") {
             // For example 100 GEL = 37.57 USD
             let rate = this.rateSync(currencyTo as ForeignCurrency)
             return amount / rate
@@ -100,11 +105,11 @@ export default class NbgRates {
         if (currencyFrom === currencyTo) {
             // no convertation
             return amount
-        } else if (currencyTo === 'GEL') {
+        } else if (currencyTo === "GEL") {
             // For example 100 USD = 266 GEL
             let rate = await this.rate(currencyFrom as ForeignCurrency)
             return amount * rate
-        } else if (currencyFrom === 'GEL') {
+        } else if (currencyFrom === "GEL") {
             // For example 100 GEL = 37.57 USD
             let rate = await this.rate(currencyTo as ForeignCurrency)
             return amount / rate
@@ -117,40 +122,56 @@ export default class NbgRates {
     }
 
     rateSync(currency: Currency): number {
-        if (currency === "GEL") { return 1 }
-        return this.cache[currency]['rate']
+        if (currency === "GEL") {
+            return 1
+        }
+        if (!this.cache) {
+            throw new Error(`NBG Rates ERROR: cache is empty`)
+        }
+        if (!this.cache[currency]) {
+            throw new Error(`NBG Rates ERROR: no ${currency} in cache`)
+        }
+        return this.cache[currency as ForeignCurrency]!["rate"]
     }
 
     async rate(currency: Currency): Promise<number> {
-        if (currency === "GEL") { return 1 }
+        if (currency === "GEL") {
+            return 1
+        }
         await this._check()
-        return this.cache[currency]['rate']
+        if (!this.cache) {
+            throw new Error(`NBG Rates ERROR: cache is empty`)
+        }
+        if (!this.cache[currency]) {
+            throw new Error(`NBG Rates ERROR: no ${currency} in cache`)
+        }
+        return this.cache[currency]!["rate"]
     }
 
-    async _check(): Promise<void> {
-        if (this.updating !== null) {
-            await this.updating
+    private async _check(): Promise<void> {
+        if (this.updatingPromise !== null) {
+            await this.updatingPromise
         }
 
-        if (moment().diff(this.updated, 'seconds') > this._lifetime) {
+        if (moment().diff(this.dateUpdated, "seconds") > this._lifetime) {
             await this._update()
         }
     }
 
-    async _update(): Promise<void> {
-        console.log('DEBUG: updating exchange rates...') // DEBUG
+    private async _update(): Promise<void> {
+        console.log("DEBUG: updating exchange rates...") // DEBUG
         this._updatingFlag = true
 
         try {
-            this.updating = axios.get(rssUrl)
-            const response = await this.updating
+            this.updatingPromise = axios.get(rssUrl)
+            const response = await this.updatingPromise
             const rss = cheerio.load(response.data, { xmlMode: true })
-            const doc = cheerio.load(rss('description').text())
+            const doc = cheerio.load(rss("description").text())
             tableparser(doc) // add .parsetable() method
             // @ts-ignore
-            const parsed = doc('table').parsetable(false, false, true)
-            const data = {}
-            parsed[0].forEach((item, i) => {
+            const parsed = doc("table").parsetable(false, false, true)
+            const data: IRatesCache = {}
+            parsed[0].forEach((item: ForeignCurrency, i: number) => {
                 const amount = parseInt(parsed[1][i])
                 data[item] = {
                     ratePerAmount: parsed[2][i], // GEL per X foreign currency
@@ -160,7 +181,7 @@ export default class NbgRates {
                 }
             })
             this.cache = data
-            this.updated = new Date()
+            this.dateUpdated = new Date()
         } catch (error) {
             if (this.cache === null) {
                 // throw error if no failback data (in cache)

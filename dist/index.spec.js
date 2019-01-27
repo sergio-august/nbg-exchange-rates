@@ -7,9 +7,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const chai_1 = require("chai");
-const index_1 = require("./index");
+const index_1 = __importDefault(require("./index"));
 describe(">>> Testing convertation... >>>", function () {
     // set maximum timeout for async calls to 20 seconds
     this.timeout(1 * 20 * 1000);
@@ -18,13 +21,13 @@ describe(">>> Testing convertation... >>>", function () {
     it(`#Updating exchange rates:`, function () {
         return __awaiter(this, void 0, void 0, function* () {
             nbg = new index_1.default(3, false);
-            if (nbg.updating) {
-                yield nbg.updating;
+            if (nbg.updatingPromise) {
+                yield nbg.updatingPromise;
             }
             console.log(nbg.cache);
         });
     });
-    currencies.forEach((currency) => {
+    currencies.forEach(currency => {
         // show exchange rates for GEL -> X
         it(`#Shows exchange rate via async "rate()" from ${currency} to GEL`, function () {
             return __awaiter(this, void 0, void 0, function* () {
