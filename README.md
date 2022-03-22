@@ -3,10 +3,10 @@
 [![Build Status](https://travis-ci.org/sergio-code/nbg-exchange-rates.svg?branch=master)](https://travis-ci.org/sergio-code/nbg-exchange-rates)
 [![Coverage Status](https://coveralls.io/repos/github/sergio-code/nbg-exchange-rates/badge.svg?branch=master)](https://coveralls.io/github/sergio-code/nbg-exchange-rates?branch=master)
 
-Nodejs TypeScript/JavaScript wrapper around official National Bank of Georgia [RSS Feed](http://www.nbg.ge/rss.php) with exchange [rates](https://www.nbg.gov.ge/index.php?m=582&lng=eng)
+Nodejs TypeScript/JavaScript wrapper around official National Bank of Georgia [RSS Feed](https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/rss) with exchange [rates](https://nbg.gov.ge/en/monetary-policy/currency)
 
 ### Features:
-* convert from any [currency in the list](https://www.nbg.gov.ge/index.php?m=582&lng=eng) to another (through georgian lari)
+* convert from any [currency in the list](https://nbg.gov.ge/en/monetary-policy/currency) to another (through georgian lari)
 * cache
 * periodical/live update
 
