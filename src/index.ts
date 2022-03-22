@@ -4,7 +4,7 @@ import cheerio from "cheerio"
 import tableparser from "cheerio-tableparser"
 import moment from "moment"
 
-const rssUrl = "http://www.nbg.ge/rss.php"
+const rssUrl = "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/rss"
 
 export type ForeignCurrency =
     | "AED"
