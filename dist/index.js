@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -16,7 +17,7 @@ const cheerio_1 = __importDefault(require("cheerio"));
 // @ts-ignore
 const cheerio_tableparser_1 = __importDefault(require("cheerio-tableparser"));
 const moment_1 = __importDefault(require("moment"));
-const rssUrl = "http://www.nbg.ge/rss.php";
+const rssUrl = "https://nbg.gov.ge/gw/api/ct/monetarypolicy/currencies/en/rss";
 class NbgRates {
     constructor(lifetime, liveUpdate = false, verbose = false) {
         this.cache = undefined;
@@ -96,7 +97,7 @@ class NbgRates {
             if (this.updatingPromise !== null) {
                 yield this.updatingPromise;
             }
-            if (moment_1.default().diff(this.dateUpdated, "seconds") > this.lifetime) {
+            if ((0, moment_1.default)().diff(this.dateUpdated, "seconds") > this.lifetime) {
                 yield this.update();
             }
         });
@@ -110,7 +111,7 @@ class NbgRates {
                 const response = yield this.updatingPromise;
                 const rss = cheerio_1.default.load(response.data, { xmlMode: true });
                 const doc = cheerio_1.default.load(rss("description").text());
-                cheerio_tableparser_1.default(doc); // add .parsetable() method
+                (0, cheerio_tableparser_1.default)(doc); // add .parsetable() method
                 // @ts-ignore
                 const parsed = doc("table").parsetable(false, false, true);
                 const data = {};

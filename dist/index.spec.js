@@ -1,9 +1,10 @@
 "use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
         function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
         function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : new P(function (resolve) { resolve(result.value); }).then(fulfilled, rejected); }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
@@ -33,21 +34,21 @@ describe(">>> Testing convertation... >>>", function () {
             return __awaiter(this, void 0, void 0, function* () {
                 let gel = yield nbg.rate(currency);
                 console.log(`1 ${currency} = ${gel.toFixed(6)} GEL`);
-                chai_1.expect(gel).to.be.a('number');
+                (0, chai_1.expect)(gel).to.be.a('number');
             });
         });
         it(`#Shows exchange rate via "rateSync()" from ${currency} to GEL`, function () {
             let gel = nbg.rateSync(currency);
             console.log(`1 ${currency} = ${gel.toFixed(6)} GEL`);
-            chai_1.expect(gel).to.be.a('number');
+            (0, chai_1.expect)(gel).to.be.a('number');
         });
         it(`#Converts via async "convert()" from GEL to ${currency} and vice versa`, function () {
             return __awaiter(this, void 0, void 0, function* () {
                 let amount = 100;
                 let gel = yield nbg.convert(currency, "GEL", amount);
-                chai_1.expect(gel).to.be.a('number');
+                (0, chai_1.expect)(gel).to.be.a('number');
                 let xxx = yield nbg.convert("GEL", currency, amount);
-                chai_1.expect(xxx).to.be.a('number');
+                (0, chai_1.expect)(xxx).to.be.a('number');
                 console.log(`${amount} ${currency} = ${gel.toFixed(6)} GEL`);
                 console.log(`${amount} GEL = ${xxx.toFixed(6)} ${currency}`);
             });
@@ -55,9 +56,9 @@ describe(">>> Testing convertation... >>>", function () {
         it(`#Converts via "convertSync()" from GEL to ${currency} and vice versa`, function () {
             let amount = 100;
             let gel = nbg.convertSync(currency, "GEL", amount);
-            chai_1.expect(gel).to.be.a('number');
+            (0, chai_1.expect)(gel).to.be.a('number');
             let xxx = nbg.convertSync("GEL", currency, amount);
-            chai_1.expect(xxx).to.be.a('number');
+            (0, chai_1.expect)(xxx).to.be.a('number');
             console.log(`${amount} ${currency} = ${gel.toFixed(6)} GEL`);
             console.log(`${amount} GEL = ${xxx.toFixed(6)} ${currency}`);
         });
