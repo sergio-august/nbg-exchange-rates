@@ -1,6 +1,6 @@
 {
   "name": "nbg-exchange-rates",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Nodejs TypeScript/JavaScript wrapper around National Bank of Georgia official RSS Feed with exchange rates",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
